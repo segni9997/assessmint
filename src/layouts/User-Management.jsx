@@ -64,9 +64,9 @@ const matchesRole =
   const getStatusBadgeClass = (status) => {
     switch (status) {
       case true:
-        return "badge badge-neutral"
+        return "badge badge-outline"
       case false:
-        return "badge badge-ghost"
+        return "badge badge-outline text-red-400"
     
       default:
         return "badge"
@@ -169,7 +169,7 @@ const matchesRole =
                   <td>{user?.roles?.filter((role)=>role !== "USER")}</td>
                   <td>
                     <button onClick={()=>handleactivate(user.id)} className="cursor-pointer ">
-                    <span className={`${getStatusBadgeClass(user?.isActive)} hover:bg-accent-teal-light`}>{user?.isActive ? "Active" : "Inactive"}</span>
+                    <span className={`${getStatusBadgeClass(user?.isActive)} hover:bg-accent-teal-light hover:text-bg-light `}>{user?.isActive ? "Active" : "Inactive"}</span>
 
                     </button>
                   </td>

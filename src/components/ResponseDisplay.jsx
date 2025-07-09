@@ -257,7 +257,7 @@ const ResponseDisplay = ({
               <h3 className="font-bold text-lg mb-4">Submitting Questions</h3>
               <p>{`${progress.current}/${progress.total} Submitted`}</p>
               <progress
-                className="progress progress-primary w-full mt-4"
+                className="progress progress-accent w-full mt-4"
                 value={progress.current}
                 max={progress.total}
               ></progress>

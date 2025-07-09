@@ -33,6 +33,7 @@ import ChatInterface from "./features/ai/ChatInterface";
 import AddQuestion_from_Bank from "./features/assesments/AddQuestion_from_Bank";
 import ResultsRanking from "./features/assesments/MyAssessment";
 import LandingPage from "./layouts/Landing";
+import ForgotPassword from "./features/auth/ForgotPassword";
 // import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
@@ -42,12 +43,13 @@ function App() {
     <Provider store={store}>
       <Routes>
         {/* Public Auth Routes */}
-        <Route path="/home" element={<LandingPage/>}/>
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignupForm />} />
-          <Route path="/" element={<Navigate to="/login" replace />} />
-        </Route>
+  <Route path="/" element={<LandingPage />} />
+
+     <Route element={<AuthLayout />}>
+  <Route path="/login" element={<LoginForm />} />
+  <Route path="/signup" element={<SignupForm />} />
+  <Route path="/forgot-password" element={<ForgotPassword />} />
+</Route>
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoutes />}>

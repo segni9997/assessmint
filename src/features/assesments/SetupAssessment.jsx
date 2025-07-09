@@ -158,10 +158,10 @@ const SetupAssessment = ({
           {/* Row of buttons (Assessment list) */}
           <div className="flex flex-row justify-start  items-start w-full md:w-fit gap-2 overflow-x-scroll scrollbar-hide ">
             <Button
-              icon={<Settings />}
+              icon={<Settings className="w-5 h-5" />}
               label="Assesment Setting"
-              text="white"
-              bg="bg-accent-teal-light"
+              text="bg-btn-primary"
+              bg="border-2 rounded border-accent-teal-light"
               onClick={() => {
                 Dispatch({ type: "isSettingModalOpen", payload: true });
               }}
@@ -169,8 +169,8 @@ const SetupAssessment = ({
             <Button
               icon={<HelpCircle />}
               label="Guidance"
-              text="gray-200"
-              bg="bg-btn-primary"
+              text="bg-btn-primary"
+              bg="border-2 rounded border-accent-teal-light"
               onClick={() => {
                 Dispatch({ type: "isGuidanceModalOpen", payload: true });
               }}
@@ -181,8 +181,8 @@ const SetupAssessment = ({
                 <Button
                   icon={<PlusCircle />}
                   label="Add Question"
-                  text="white"
-                  bg="bg-amber-500"
+                  text="bg-btn-primary"
+                  bg="border-2 rounded border-accent-teal-light"
                   onClick={() => {
                     Dispatch({ type: "isMCQOpen", payload: true });
                   }}
@@ -193,8 +193,8 @@ const SetupAssessment = ({
                   <Button
                     icon={<Container />}
                     label="Add From Bank"
-                    text="white"
-                    bg="bg-primary"
+                    text="bg-btn-primary"
+                    bg="border-2 rounded border-accent-teal-light"
                   />
                 </Link>
               </>
@@ -210,7 +210,7 @@ const SetupAssessment = ({
       <div className="md:w-[95%] w-full flex flex-col md:flex-row lg:justify-center  mx-auto lg:mt-5  gap-2 bg-bg-light dark:bg-gray-800 dark:text-bg-light overflow-y-scroll scrollbar-hide p-1 h-[80vh]">
         {/* left */}
 
-        <div className="w-full lg:w-1/2 dark:bg-gray-800 dark:text-bg-light bg-white shadow-lg border border-btn-primary rounded-xl shadow-btn-primary-light md:overflow-auto md:scrollbar-hide   ">
+        <div className="w-full  lg:w-1/2 dark:bg-gray-800 dark:text-bg-light bg-white shadow-lg border border-btn-primary rounded-xl shadow-btn-primary-light md:overflow-auto md:scrollbar-hide   ">
           {FetchedSection.length === 0 && (
             <NoElements
               core_item="Section"

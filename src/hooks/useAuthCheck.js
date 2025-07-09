@@ -25,7 +25,7 @@ const useAuthCheck = () => {
         }
       } catch (error) {
         // Handle decoding errors (invalid token format, etc.)
-        navigate("/login");
+        navigate("/");
       }
     } else {
       console.log("No token found. Redirecting to login");

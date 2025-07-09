@@ -206,7 +206,11 @@ const SignupForm = ({ signup, isAuthenticated }) => {
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
         </div>
-
+        <div className="relative justify-end flex">
+            <Link to="/forgot-password" className="text-btn-primary text-sm text-right ms-auto">
+        Forgot Password?
+        </Link> 
+</div>
         {/* Agree to Terms */}
         <div className="flex items-center">
           <input

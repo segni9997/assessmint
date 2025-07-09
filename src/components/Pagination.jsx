@@ -29,7 +29,7 @@ const Pagination = ({
       </div>
 
       {/* Page Info */}
-      <div className="hidden md:block text-sm text-gray-700 mb-3 md:mb-0">
+      <div className="hidden md:block text-sm text-gray-200 mb-3 md:mb-0">
         Showing {Math.min(totalItems, indexOfFirstItem + 1)}-{Math.min(totalItems, indexOfLastItem)} of {totalItems} questions
       </div>
 

@@ -52,7 +52,7 @@ const LoginForm = ({ login, isAuthenticated }) => {
     return <Navigate to="/dashboard" />;
   }
   return (
-    <div className="border-0  ">
+    <div className="border-0   ">
       <h1 className="text-3xl font-bold mb-2 text-center ">Welcome back!</h1>
       <p className="text-gray-600 mb-8 text-center alert bg-amber-100">
         {" "}
@@ -130,6 +130,11 @@ const LoginForm = ({ login, isAuthenticated }) => {
             {errors.password}
           </p>
         )}
+        <div className="relative justify-end flex">
+            <Link to="/forgot-password" className="text-btn-primary text-sm text-right ms-auto">
+        Forgot Password?
+        </Link> 
+</div>
         {/* Remember Me */}
         <div className="flex items-center">
           <input
@@ -147,7 +152,7 @@ const LoginForm = ({ login, isAuthenticated }) => {
             Remember for 30 days
           </label>
         </div>
-
+      
         {/* Submit Button */}
         <button
           type="submit"

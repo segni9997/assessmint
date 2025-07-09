@@ -1,31 +1,39 @@
-import { Search, SortAsc, SortDesc } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import { useLoadAssessment } from "../../hooks/useLoadMyAssessment";
-import { useDispatch, useSelector } from "react-redux";
-import { Autocomplete, TextField } from "@mui/material";
-import {
-  fetch_results_by_assessment_Id,
-  fetch_results_by_assessment_Id_for_examinee,
-  load_my_inivitation,
-} from "../../action/Auth";
-import { usePagination } from "../../hooks/usePagination";
-import Pagination from "../../components/Pagination";
+"use client"
 
-// Main MyAssessment component
+import { Search, Users, Award, Download, Mail } from "lucide-react"
+import React, { useEffect, useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useDispatch, useSelector } from "react-redux"
+import { useLoadAssessment } from "@/hooks/useLoadMyAssessment"
+import { fetch_results_by_assessment_Id, fetch_results_by_assessment_Id_for_examinee, load_my_inivitation } from "@/action/Auth"
+import { usePagination } from "@/hooks/usePagination"
+import Pagination from "@/components/Pagination"
+
+
+
+
 const MyAssessment = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+
+ useLoadAssessment();
+  const rawAssessment = useSelector((state) => state.assessment.Assessments);
+  const [selectedAssessment, setSelectedAssessment] = useState(null)
+  const [fetchedResults, setFetchedResults] = useState([])
+  const [activeTab, setActiveTab] = useState("results")
+
+   const user = JSON.parse(localStorage.getItem("user"));
   const isExaminee = user.roles.some((role) => role === "EXAMINEE");
   const isExaminer = user.roles.some((role) => role === "EXAMINER");
   const dispatch = useDispatch();
-  const [selectedAssessment, setSelectedAssessment] = useState(null);
-  const [fetchedresults, setFetchedResults] = useState([]);
   const [AssessmentData, setAssessmentData] = useState([]);
 
-  useLoadAssessment();
-  const rawAssessment = useSelector((state) => state.assessment.Assessments);
-
-
-  const fetch_results = async () => {
+const fetch_results = async () => {
     const response = await dispatch(
       fetch_results_by_assessment_Id(selectedAssessment)
     );
@@ -67,189 +75,91 @@ const MyAssessment = () => {
     }
   }, [selectedAssessment]);
 
-  return (
-    <div className="min-h-screen bg-bg-light flex flex-col md:flex-row p-4 sm:p-6 lg:p-8 antialiased font-display dark:bg-gray-800 dark:text-bg-light">
-      <div className="md:max-w-9xl w-full rounded-xl  overflow-hidden">
-        <h1 className="text-4xl md:text-start font-bold light:text-gray-800 p-2 border-gray-200 ">
-          Assessment Results Overview
-        </h1>
-        {!isExaminee && (
-          <span className="md:p-2  text-start font-semibold ">
-            View candidates ranked by their performance
-          </span>
-        )}
-
-        <AssessmentTable
-          data={fetchedresults}
-          assessments={rawAssessment?.body || AssessmentData}
-          SelectedID={(id) => setSelectedAssessment(id)}
-          Examiner={isExaminer}
-          Examinee={isExaminee}
-        />
-      </div>
-    </div>
-  );
-};
-
-// Define a constant for the passing percentage threshold
-const PASS_THRESHOLD = 50; // Example: 70% is considered passing
-
-// SearchableSelect component for autocomplete functionality
-const SearchableSelect = ({ options, value, onChange, placeholder, label }) => {
-  const [inputValue, setInputValue] = React.useState(value || "");
-  const [showOptions, setShowOptions] = React.useState(false);
-  const wrapperRef = React.useRef(null);
-
-  React.useEffect(() => {
-    setInputValue(value || "");
-  }, [value]);
-
-  // Handle clicks outside the component to close the options list
-  React.useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setShowOptions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(inputValue.toLowerCase())
-  );
-
-  const handleSelect = (option) => {
-    setInputValue(option);
-    onChange(option);
-    setShowOptions(false);
-  };
-
-  const handleInputChange = (e) => {
-    setInputValue(e.target.value);
-    onChange(""); // Clear the selected value if user is typing
-    setShowOptions(true);
-  };
-
-  const handleClear = () => {
-    setInputValue("");
-    onChange("");
-    setShowOptions(false);
-  };
 
   return (
-    <div className="relative flex-grow " ref={wrapperRef}>
-      <div className="relative bg-white  ">
-        <input
-          id={`searchable-select-${label}`}
-          type="text"
-          className="mt-1 block border border-accent-teal-light w-full rounded-md shadow-sm focus:border-accent-teal-dark focus:ring-accent-teal-dark  sm:text-sm p-2 pr-10"
-          placeholder={placeholder}
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={() => setShowOptions(true)}
-        />
-        {inputValue && (
-          <button
-            type="button"
-            onClick={handleClear}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
-            aria-label="Clear search"
-          >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-        )}
-      </div>
-      {showOptions && filteredOptions.length > 0 && (
-        <ul className="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
-          {filteredOptions.map((option) => (
-            <li
-              key={option}
-              className="px-4 py-2 cursor-pointer hover:bg-indigo-50 hover:text-indigo-700 text-sm"
-              onClick={() => handleSelect(option)}
-            >
-              {option}
-            </li>
-          ))}
-        </ul>
-      )}
-      {showOptions && filteredOptions.length === 0 && inputValue && (
-        <div className="px-4 py-2 text-sm text-gray-500">
-          No matching options
+    <div className="min-h-screen bg-gray-50  p-4 sm:p-6 lg:p-8 dark:bg-gray-800 dark:text-bg-light">
+      <div className="max-w-8xl mx-auto dark:bg-gray-800 dark:text-bg-light">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2 dark:bg-gray-800 dark:text-bg-light">Assessment Results Overview</h1>
+          {!isExaminee && (
+            <p className="text-gray-600  dark:text-bg-light font-medium">
+              View candidates ranked by their performance and select top performers
+            </p>
+          )}
         </div>
-      )}
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full gap-10 ">
+     {isExaminer &&      <TabsList className="grid w-[40%] mx-auto grid-cols-1 md:grid-cols-2 mb-6 gap-2 dark:bg-gray-800 dark:text-bg-light">
+          <TabsTrigger
+  value="results"
+  className="flex items-center gap-2 rounded-md px-4 py-2 transition outline 
+    data-[state=active]:bg-bg-secondary-light 
+    data-[state=active]:text-white 
+    dark:data-[state=active]:bg-accent-teal-dark 
+    dark:data-[state=active]:text-bg-light"
+>
+  <Users className="w-4 h-4" />
+  All Results
+</TabsTrigger>
+
+<TabsTrigger
+  value="top-performers"
+  className="flex items-center gap-2 rounded-md px-4 py-2 transition outline 
+    data-[state=active]:bg-bg-secondary-light 
+    data-[state=active]:text-white 
+    dark:data-[state=active]:bg-accent-teal-light 
+    dark:data-[state=active]:text-bg-light"
+>
+  <Award className="w-4 h-4" />
+  Select Top Performers
+</TabsTrigger>
+
+          </TabsList>}
+
+          <TabsContent value="results" className={`dark:bg-gray-800 dark:text-bg-light`}>
+            <AssessmentTable
+              data={fetchedResults}
+              assessments={isExaminer ? rawAssessment?.body || AssessmentData : AssessmentData }
+              selectedAssessment={selectedAssessment}
+              onAssessmentChange={setSelectedAssessment}
+              examiner={isExaminer}
+              examinee={isExaminee}
+            />
+          </TabsContent>
+
+          <TabsContent value="top-performers">
+            <TopPerformersSelection
+              data={fetchedResults}
+              assessments={rawAssessment?.body || AssessmentData}
+              selectedAssessment={selectedAssessment}
+              onAssessmentChange={setSelectedAssessment}
+            />
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
-  );
-};
+  )
+}
 
-// AssessmentTable component to display the data with search, sort, and filter
-const AssessmentTable = ({
-  data,
-  assessments,
-  SelectedID,
-  Examiner,
-  Examinee,
-}) => {
-  // State to manage which rows are expanded to show attempt details
-  const [expandedRows, setExpandedRows] = React.useState({});
-  // State for generic search functionality (Examinee Name)
-  const [examineeSearchTerm, setExamineeSearchTerm] = React.useState("");
-  // State for searchable select for Assessment ID
-  const [selectedAssessmentFilter, setSelectedAssessmentFilter] =
-    React.useState("");
-  const [PassingScore, setPasingScore] = useState(0);
-  // State for sorting functionality
-  const [sortColumn, setSortColumn] = React.useState(null);
-  const [sortDirection, setSortDirection] = React.useState("asc"); // 'asc' or 'desc'
-  // State for pass/fail filtering
-  const [passFailFilter, setPassFailFilter] = React.useState("all"); // 'all', 'pass', 'fail'
-
-  const toggleRow = (key) => {
-    setExpandedRows((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
+// Top Performers Selection Component
+const TopPerformersSelection = ({ data, assessments, selectedAssessment, onAssessmentChange }) => {
+  const [selectedCandidates, setSelectedCandidates] = useState([])
+  const [performanceThreshold, setPerformanceThreshold] = useState(75)
+  const [maxCandidates, setMaxCandidates] = useState(10)
 
   // Helper function to calculate success percentage
   const calculatePercentage = (success, failure, skipped) => {
-    const total = success + failure + skipped;
-    if (total === 0) {
-      return 0; // Return 0 for calculation, 'N/A' for display
-    }
-    return (success / total) * 100;
-  };
+    const total = success + failure + skipped
+    if (total === 0) return 0
+    return (success / total) * 100
+  }
 
-  // Helper function to format percentage for display
-  const formatPercentage = (percentage) => {
-    if (percentage === 0 && (isNaN(percentage) || !isFinite(percentage))) {
-      // Check for 0 and non-finite values
-      return "N/A";
-    }
-    return percentage.toFixed(2) + "%";
-  };
-
-
+  // Group and process data
   const groupedData = React.useMemo(() => {
-    const safeData = Array.isArray(data) ? data : data ? [data] : [];
+    const safeData = Array.isArray(data) ? data : []
 
     return safeData.reduce((acc, currentAttempt) => {
-      const key = `${currentAttempt.examineeEmail}-${currentAttempt.assessmentId}`;
+      const key = `${currentAttempt.examineeEmail}-${currentAttempt.assessmentId}`
       if (!acc[key]) {
         acc[key] = {
           examineeName: currentAttempt.examineeName,
@@ -258,151 +168,424 @@ const AssessmentTable = ({
           attempts: [],
           highestSuccessCount: 0,
           highestScoreAttempt: null,
-        };
+        }
       }
 
-      acc[key].attempts.push(currentAttempt);
+      acc[key].attempts.push(currentAttempt)
 
       if (currentAttempt.successCount > acc[key].highestSuccessCount) {
-        acc[key].highestSuccessCount = currentAttempt.successCount;
-        acc[key].highestScoreAttempt = currentAttempt;
+        acc[key].highestSuccessCount = currentAttempt.successCount
+        acc[key].highestScoreAttempt = currentAttempt
       }
 
-      return acc;
-    }, {});
-  }, [data]);
+      return acc
+    }, {})
+  }, [data])
 
-  // Get unique assessment IDs for the searchable select
-  const uniqueAssessments = React.useMemo(() => {
-    const seenIds = new Set();
-    const unique = [];
+  // Get top performers based on criteria
+  const topPerformers = React.useMemo(() => {
+    const candidates = Object.values(groupedData)
+      .filter((group) => group.assessmentId === selectedAssessment)
+      .map((group) => ({
+        ...group,
+        percentage: group.highestScoreAttempt
+          ? calculatePercentage(
+              group.highestScoreAttempt.successCount,
+              group.highestScoreAttempt.failureCount,
+              group.highestScoreAttempt.skippedCount,
+            )
+          : 0,
+      }))
+      .filter((candidate) => candidate.percentage >= performanceThreshold)
+      .sort((a, b) => b.percentage - a.percentage)
+      .slice(0, maxCandidates)
 
-    assessments?.forEach((item) => {
-      if (!seenIds.has(item.id)) {
-        seenIds.add(item.id);
-        unique.push({
-          id: item.id,
-          title: item.title,
-          PassScore: item.settings.passingScore,
-        });
+    return candidates
+  }, [groupedData, selectedAssessment, performanceThreshold, maxCandidates])
+
+  const handleCandidateToggle = (candidateEmail) => {
+    setSelectedCandidates((prev) =>
+      prev.includes(candidateEmail) ? prev.filter((email) => email !== candidateEmail) : [...prev, candidateEmail],
+    )
+  }
+
+  const handleSelectAll = () => {
+    if (selectedCandidates.length === topPerformers.length) {
+      setSelectedCandidates([])
+    } else {
+      setSelectedCandidates(topPerformers.map((p) => p.examineeEmail))
+    }
+  }
+
+  const handleExportSelected = () => {
+    const selectedData = topPerformers.filter((p) => selectedCandidates.includes(p.examineeEmail))
+  const exportData = selectedData.map(({ examineeName, examineeEmail, percentage }) => ({
+    Name: examineeName,
+    Email: examineeEmail,
+    Score: `${percentage.toFixed(3)}%`,
+  }))
+
+  exportToCSV(exportData, `${selectedAssessmentData?.title} Assessment top Performers.csv`)
+  }
+
+  const handleSendInvitations = () => {
+    const selectedData = topPerformers.filter((p) => selectedCandidates.includes(p.examineeEmail))
+
+    // Mock invitation functionality
+    console.log("Sending invitations to:", selectedData)
+    alert(`Sending invitations to ${selectedData.length} selected candidates`)
+  }
+
+  const selectedAssessmentData = assessments.find((a) => a.id === selectedAssessment)
+
+const exportToCSV = (data, filename = "export.csv") => {
+  if (data.length === 0) return
+
+  const headers = Object.keys(data[0]).join(",")
+  const rows = data.map((row) =>
+    Object.values(row)
+      .map((val) => `"${val}"`) // Handle commas in values
+      .join(",")
+  )
+  const csvContent = [headers, ...rows].join("\n")
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+
+  const link = document.createElement("a")
+  link.href = URL.createObjectURL(blob)
+  link.setAttribute("download", filename)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  }
+  
+  const {
+    currentPage,
+    itemsPerPage,
+    totalItems,
+    totalPages,
+    indexOfFirstItem,
+    indexOfLastItem,
+    currentItems,
+    handlePageChange,
+    handleItemsPerPageChange,
+  } = usePagination(topPerformers, 5);
+  return (
+    <div className="space-y-6 dark:bg-gray-800 dark:text-bg-light">
+
+         {/* Results Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
+        <Card className={`bg-gradient-to-br from-bg-secondary-light via-accent-teal-light to-bg-light border-0`}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="text-gray-200">
+                <p className="text-sm font-medium ">Total Candidates</p>
+                <p className="text-2xl font-bold">{topPerformers.length}</p>
+              </div>
+              <Users className="w-8 h-8 text-gray-700 bg-white rounded-full p-1" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={`bg-gradient-to-br from-bg-secondary-light via-accent-teal-light to-bg-light border-0`}>
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-200">Selected</p>
+                <p className="text-2xl font-bold text-white">{selectedCandidates.length}</p>
+              </div>
+              <Award className="w-8 h-8 bg-white rounded-full p-1 text-gray-700" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className={`bg-gradient-to-br from-bg-secondary-light via-accent-teal-light to-bg-light border-0`}>
+          <CardContent className="p-6 ">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-200">Avg Score</p>
+                <p className="text-2xl font-bold text-white">
+                  {topPerformers.length > 0
+                    ? (topPerformers.reduce((sum, p) => sum + p.percentage, 0) / topPerformers.length).toFixed(1)
+                    : 0}
+                  %
+                </p>
+              </div>
+              <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
+                <span className="text-gray-800 font-bold">%</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+      {/* Controls */}
+      <Card className={`border-0 shadow-none text-btn-primary dark:bg-gray-800 dark:text-bg-light`}>
+        {/* <CardHeader>
+          <CardTitle className="flex items-center gap-2  ">
+            <Award className="w-5 h-5" />
+            Top Performers Selection
+          </CardTitle>
+        </CardHeader> */}
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 ">
+            <div>
+              <label className="block text-sm font-medium mb-2">Assessment</label>
+              <Select value={selectedAssessment} onValueChange={onAssessmentChange}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={`bg-white `}>
+                  {assessments.map((assessment) => (
+                    <SelectItem key={assessment.id} value={assessment.id} className={`bg-`}>
+                      {assessment.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Min Performance (%)</label>
+              <Input
+                type="number"
+                value={performanceThreshold}
+                onChange={(e) => setPerformanceThreshold(Number(e.target.value))}
+                min="0"
+                max="100"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Max Candidates</label>
+              <Input
+                type="number"
+                value={maxCandidates}
+                onChange={(e) => setMaxCandidates(Number(e.target.value))}
+                min="1"
+                max="50"
+              />
+            </div>
+
+            <div className="flex items-end">
+              <Button onClick={handleSelectAll} variant="outline" className="w-full">
+                {selectedCandidates.length === topPerformers.length ? "Deselect All" : "Select All"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+   
+
+      {/* Top Performers List */}
+      <Card className={`dark:bg-gray-800 dark:text-bg-light`}>
+        <CardHeader>
+          <div className="flex items-center justify-between ">
+            <CardTitle className={`hidden md:block`}>Top Performers - {selectedAssessmentData?.title}</CardTitle>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleExportSelected}
+                disabled={selectedCandidates.length === 0}
+                className={`outline outline-btn-primary bg-none text-gray-700 hover:bg-accent-teal-light hover:text-bg-light`}
+                size="sm"
+                variant="outline"
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Export Selected
+              </Button>
+              <Dialog >
+                <DialogTrigger asChild>
+                  <Button disabled={selectedCandidates.length === 0} size="sm" className={`bg-btn-primary text-bg-light hover:bg-accent-teal-light`}>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Send Invitations
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className={`bg-white`}>
+                  <DialogHeader>
+                    <DialogTitle>Send Invitations</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 dark:bg-gray-800 dark:text-bg-light ">
+                    <p>Send invitations to {selectedCandidates.length} selected candidates?</p>
+                    <div className="space-y-2">
+                      {topPerformers
+                        .filter((p) => selectedCandidates.includes(p.examineeEmail))
+                        .map((candidate) => (
+                          <div
+                            key={candidate.examineeEmail}
+                            className="flex items-center justify-between p-2 bg-gray-50 rounded"
+                          >
+                            <span>{candidate.examineeName}</span>
+                            <Badge className={`bg-accent-teal-light text-white`}>{candidate.percentage.toFixed(1)}%</Badge>
+                          </div>
+                        ))}
+                    </div>
+                    <Button onClick={handleSendInvitations} className="w-full bg-btn-primary text-white hover:bg-accent-teal-dark">
+                      Confirm & Send
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {currentItems.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">No candidates meet the current criteria</div>
+          ) : (
+            <div className="space-y-3 dark:bg-gray-800 dark:text-bg-light">
+              {currentItems.map((candidate, index) => (
+                <div
+                  key={candidate.examineeEmail}
+                  className="flex items-center justify-between p-4 border rounded-lg light:hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                  className={`w-5 h-5 bg-white border border-gray-300 data-[state=checked]:bg-btn-primary data-[state=checked]:text-white`}
+                      checked={selectedCandidates.includes(candidate.examineeEmail)}
+                      onCheckedChange={() => handleCandidateToggle(candidate.examineeEmail)}
+                    />
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <span className="text-btn-primary font-bold text-md">{index+1 === 1  ? "🥇":index+1 === 2 ? "🥈": index+1 === 3 ? "🥉": "#" }{index + 1}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium">{candidate.examineeName}</p>
+                        <p className="text-sm text-gray-500">{candidate.examineeEmail}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="text-right">
+                      <p className="font-bold text-lg">{candidate.percentage.toFixed(1)}%</p>
+                      <p className="text-sm text-gray-500">{candidate.highestSuccessCount} correct answers</p>
+                    </div>
+                    <Badge className={`dark:bg-gray-800 dark:text-bg-light`}
+                      variant={
+                        candidate.percentage >= 90 ? "default" : candidate.percentage >= 80 ? "secondary" : "outline"
+                      }
+                    >
+                      {candidate.percentage >= 90 ? "Excellent" : candidate.percentage >= 80 ? "Good" : "Pass"}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+       
+                <div className="w-full mt-2">
+                  {" "}
+                  <Pagination
+                    totalItems={totalItems}
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    itemsPerPage={itemsPerPage}
+                    handleItemsPerPageChange={handleItemsPerPageChange}
+                    handlePageChange={handlePageChange}
+                    indexOfFirstItem={indexOfFirstItem}
+                    indexOfLastItem={indexOfLastItem}
+                  />
+                </div>
+         
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+
+const AssessmentTable = ({ data, assessments, selectedAssessment, onAssessmentChange, examiner, examinee }) => {
+  const [expandedRows, setExpandedRows] = useState({})
+  const [searchTerm, setSearchTerm] = useState("")
+  const [sortColumn, setSortColumn] = useState(null)
+  const [sortDirection, setSortDirection] = useState("asc")
+  const [passFailFilter, setPassFailFilter] = useState("all")
+  
+  const calculatePercentage = (success, failure, skipped) => {
+    const total = success + failure + skipped
+    if (total === 0) return 0
+    return (success / total) * 100
+  }
+
+  const formatPercentage = (percentage) => {
+    if (percentage === 0 && (isNaN(percentage) || !isFinite(percentage))) {
+      return "N/A"
+    }
+    return percentage.toFixed(2) + "%"
+  }
+
+  const groupedData = React.useMemo(() => {
+    const safeData = Array.isArray(data) ? data : []
+
+    return safeData.reduce((acc, currentAttempt) => {
+      const key = `${currentAttempt.examineeEmail}-${currentAttempt.assessmentId}`
+      if (!acc[key]) {
+        acc[key] = {
+          examineeName: currentAttempt.examineeName,
+          examineeEmail: currentAttempt.examineeEmail,
+          assessmentId: currentAttempt.assessmentId,
+          attempts: [],
+          highestSuccessCount: 0,
+          highestScoreAttempt: null,
+        }
       }
-    });
 
-    return unique.sort((a, b) => a.title.localeCompare(b.title)); // optional sort by title
-  }, [assessments]);
+      acc[key].attempts.push(currentAttempt)
 
-  // Filter and sort data based on current state
+      if (currentAttempt.successCount > acc[key].highestSuccessCount) {
+        acc[key].highestSuccessCount = currentAttempt.successCount
+        acc[key].highestScoreAttempt = currentAttempt
+      }
+
+      return acc
+    }, {})
+  }, [data])
+
   const processedData = React.useMemo(() => {
-    let currentData = Object.values(groupedData);
+    let currentData = Object.values(groupedData)
 
-    // 1. Apply Examinee Name Search Filter
-    if (examineeSearchTerm) {
-      currentData = currentData.filter((group) =>
-        group.examineeName
-          .toLowerCase()
-          .includes(examineeSearchTerm.toLowerCase())
-      );
+    // Apply filters
+    if (searchTerm) {
+      currentData = currentData.filter((group) => group.examineeName.toLowerCase().includes(searchTerm.toLowerCase()))
     }
 
-    // 2. Apply Assessment ID Searchable Select Filter
-    if (selectedAssessmentFilter) {
-      currentData = currentData.filter(
-        (group) => group.assessmentId === selectedAssessmentFilter
-      );
+    if (selectedAssessment) {
+      currentData = currentData.filter((group) => group.assessmentId === selectedAssessment)
     }
 
-    // 3. Apply Pass/Fail Filter
+    const passingScore = assessments.find((a) => a.id === selectedAssessment)?.settings?.passingScore || 70
+
     if (passFailFilter !== "all") {
       currentData = currentData.filter((group) => {
         const percentage = group.highestScoreAttempt
           ? calculatePercentage(
               group.highestScoreAttempt.successCount,
               group.highestScoreAttempt.failureCount,
-              group.highestScoreAttempt.skippedCount
+              group.highestScoreAttempt.skippedCount,
             )
-          : 0; // If no attempt, treat as 0 for filtering
+          : 0
 
         if (passFailFilter === "pass") {
-          return percentage >= PASS_THRESHOLD;
+          return percentage >= passingScore
         } else if (passFailFilter === "fail") {
-          return percentage < PASS_THRESHOLD;
+          return percentage < passingScore
         }
-        return true; // 'all' filter
-      });
+        return true
+      })
     }
 
-    // 4. Apply Sorting
-    if (sortColumn) {
-      currentData.sort((a, b) => {
-        let valA, valB;
+    return currentData
+  }, [groupedData, searchTerm, selectedAssessment, passFailFilter, assessments])
 
-        if (sortColumn === "highestSuccessCount") {
-          valA = a.highestSuccessCount;
-          valB = b.highestSuccessCount;
-        } else if (sortColumn === "highestScorePercentage") {
-          valA = a.highestScoreAttempt
-            ? calculatePercentage(
-                a.highestScoreAttempt.successCount,
-                a.highestScoreAttempt.failureCount,
-                a.highestScoreAttempt.skippedCount
-              )
-            : 0;
-          valB = b.highestScoreAttempt
-            ? calculatePercentage(
-                b.highestScoreAttempt.successCount,
-                b.highestScoreAttempt.failureCount,
-                b.highestScoreAttempt.skippedCount
-              )
-            : 0;
-        } else {
-          // For string sorting (examinee name, email, assessment ID)
-          valA = a[sortColumn].toLowerCase();
-          valB = b[sortColumn].toLowerCase();
-        }
+  const toggleRow = (key) => {
+    setExpandedRows((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }))
+  }
 
-        if (valA < valB) {
-          return sortDirection === "asc" ? -1 : 1;
-        }
-        if (valA > valB) {
-          return sortDirection === "asc" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    return currentData;
-  }, [
-    groupedData,
-    examineeSearchTerm,
-    selectedAssessmentFilter,
-    passFailFilter,
-    sortColumn,
-    sortDirection,
-  ]); // Re-process when dependencies change
-
-  // Handle sorting column click
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc"); // Default to ascending when changing column
-    }
-  };
-
-  // Render sort arrow indicator
-  const renderSortArrow = (column) => {
-    if (sortColumn === column) {
-      return sortDirection === "asc" ? (
-        <SortAsc className="w-3 h-4 text-accent-teal-light" />
-      ) : (
-        <SortDesc className="w-3 h-4 text-red-600" />
-      );
-    }
-    return "";
-  };
-
-  const {
+  const selectedAssessmentData = assessments.find((a) => a.id === selectedAssessment)
+  const passingScore = selectedAssessmentData?.settings?.passingScore || 70
+const {
     currentPage,
     itemsPerPage,
     totalItems,
@@ -414,325 +597,174 @@ const AssessmentTable = ({
     handleItemsPerPageChange,
   } = usePagination(processedData, 7);
   return (
-    <div className="p-4 md:p-6 dark:bg-gray-800 dark:text-bg-light  w-full">
-      {/* Search and Filter Controls */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center w-full max-w-full md:max-w-7xl mx-auto my-4 justify-between">
-        {/* Search Input */}
-      {Examiner &&   <div className="relative w-full md:w-72 dark:bg-gray-700 dark:text-bg-light">
-          <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
-            <Search className="h-4 w-4" />
-          </span>
-          <input
-            type="text"
-            id="examinee-search-input"
-            className="block w-full rounded-md border dark:bg-gray-700 dark:text-bg-light border-accent-teal-light shadow-sm pl-10 pr-3 py-3 focus:border-accent-teal-dark focus:ring-accent-teal-dark sm:text-sm h-12"
-            placeholder="Search by Examinee Name..."
-            value={examineeSearchTerm}
-            onChange={(e) => setExamineeSearchTerm(e.target.value)}
-          />
-        </div>}
+    <Card  className={`w-full border-0 dark:bg-gray-800 dark:text-bg-light`}>
+      <CardHeader>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <CardTitle>Assessment Results</CardTitle>
 
-        {/* Right side controls */}
-        <div className="flex flex-col md:flex-row w-full md:w-auto gap-4">
-          {/* Autocomplete */}
-          <div className="w-full md:w-72 dark:bg-gray-700 dark:text-bg-light">
-            <Autocomplete
-              tabIndex={0}
-              options={uniqueAssessments}
-              getOptionLabel={(option) => option.title || ""}
-              isOptionEqualToValue={(option, value) => option.id === value.id}
-              onChange={(e, newVal) => {
-                if (newVal) {
-                  SelectedID(newVal.id);
-                  setPasingScore(newVal.PassScore);
-                }
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  label="Select Assessment"
-                  variant="outlined"
-                  tabIndex={0}
-                  sx={{
-                    "& label": { color: "gray" },
-                    "& label.Mui-focused": { color: "#286575" },
-                    "& .MuiInputBase-root": { height: 48 },
-                    "& input": { padding: "12px 14px" },
-                  }}
+          <div className="flex flex-col md:flex-row gap-4">
+            {examiner && (
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 focus:outline-accent-teal-light" />
+                <Input
+                  placeholder="Search by name..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-full md:w-64 focus-visible:ring-1 border-accent-teal-light focus-visible:ring-accent"
                 />
-              )}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": { borderColor: "green" },
-                  "&:hover fieldset": { borderColor: "black" },
-                  "&.Mui-focused fieldset": { borderColor: "#286575" },
-                },
-              }}
-            />
+              </div>
+            )}
+
+            <Select value={selectedAssessment} onValueChange={onAssessmentChange} >
+              <SelectTrigger className="w-full md:w-64  border border-accent-teal-light hover:bg-gray-200 focus:ring-2 focus:ring-accent ">
+                <SelectValue placeholder="Select Assessment" />
+              </SelectTrigger>
+              <SelectContent>
+                {assessments.map((assessment) => (
+                  <SelectItem key={assessment.id} value={assessment.id} className={`bg-gray-100  hover:text-white hover:bg-bg-secondary-light  space-y-1`}>
+                    {assessment.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {examiner && (
+              <Select value={passFailFilter} onValueChange={setPassFailFilter}>
+                <SelectTrigger className="w-full md:w-48 border-accent-teal-light hover:bg-gray-200 focus:ring-2 focus:ring-accent">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className={` border border-accent-teal-light hover:bg-white focus:ring-2 focus:ring-accent`}>
+                  <SelectItem value="all">All Results</SelectItem>
+                  <SelectItem value="pass">Pass (≥{passingScore}%)</SelectItem>
+                  <SelectItem value="fail">Fail (&lt;{passingScore}%)</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
           </div>
-
-          {Examiner && (
-            <div className="w-full md:w-48">
-              <select
-                id="pass-fail-filter"
-                className="block w-full rounded-md border dark:bg-gray-700 dark:text-bg-light border-accent-teal-light shadow-sm focus:border-accent-teal-dark focus:ring-accent-teal-dark sm:text-sm py-3 px-5 h-12"
-                value={passFailFilter}
-                onChange={(e) => setPassFailFilter(e.target.value)}
-              >
-                <option value="all">All</option>
-                <option value="pass">Pass (≥{PassingScore}%)</option>
-                <option value="fail">Fail (&lt;{PassingScore}%)</option>
-              </select>
-            </div>
-          )}
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Assessment Results Table */}
-      <div className="overflow-x-auto rounded-lg shadow-md ">
-        <table className="min-w-full divide-y bg-white table table-sm table-zebra dark:bg-gray-700 dark:text-bg-light" tabIndex={0}>
-          <thead className="">
-            <tr>
-              {Examiner && (
-                <>
-                  <th
-                    scope="col"
-                    className=" px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider cursor-pointer hover:bg-gray-100 rounded-tl-lg"
-                    onClick={() => handleSort("examineeName")}
-                  >
-                    <div className="flex items-center gap-1">
-                      Examinee Name {renderSortArrow("examineeName")}
-                    </div>
-                    {/* Examinee Name {renderSortArrow('examineeName')} */}
-                  </th>
-                  <th
-                    scope="col"
-                    className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSort("examineeEmail")}
-                  >
-                    <div className="flex items-center gap-1">
-                      Examinee Email {renderSortArrow("examineeEmail")}
-                    </div>
-                  </th>
-                </>
-              )}
+      <CardContent className={``}>
+        <div className="overflow-x-auto ">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b">
+                {examiner && (
+                  <>
+                    <th className="text-left p-4 font-medium">Examinee Name</th>
+                    <th className="text-left p-4 font-medium hidden md:table-cell">Email</th>
+                  </>
+                )}
+                <th className="text-left p-4 font-medium hidden md:table-cell">Highest Score</th>
+                <th className="text-left p-4 font-medium">Percentage</th>
+                {examiner && <th className="text-left p-4 font-medium">Status</th>}
+                <th className="text-left p-4 font-medium">Attempts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((group) => {
+                  const groupKey = `${group.examineeEmail}-${group.assessmentId}`
+                  const isExpanded = expandedRows[groupKey]
 
-              <th
-                scope="col"
-                className="hidden md:table-cell px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort("highestSuccessCount")}
-              >
-                <div className="flex items-center gap-1">
-                  Highest Score (Success){" "}
-                  {renderSortArrow("highestSuccessCount")}
-                </div>
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider cursor-pointer hover:bg-gray-100"
-                onClick={() => handleSort("highestScorePercentage")}
-              >
-                <div className="flex items-center gap-1">
-                  Highest Score Percentage{" "}
-                  {renderSortArrow("highestScorePercentage")}
-                </div>
-              </th>
-              {Examiner && (
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider cursor-pointer hover:bg-gray-100"
-                  onClick={() => handleSort("examineeEmail")}
-                >
-                  <div className="flex items-center gap-1">Status</div>
-                </th>
-              )}
+                  const highestScorePercentageValue = group.highestScoreAttempt
+                    ? calculatePercentage(
+                        group.highestScoreAttempt.successCount,
+                        group.highestScoreAttempt.failureCount,
+                        group.highestScoreAttempt.skippedCount,
+                      )
+                    : 0
+                  const highestScorePercentageDisplay = formatPercentage(highestScorePercentageValue)
 
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500  tracking-wider rounded-tr-lg"
-              >
-                Attempts
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200 dark:bg-gray-700 dark:text-bg-light">
-            {/* Iterate over each grouped assessment result */}
-            {currentItems.length > 0 ? (
-              currentItems.map((group) => {
-                const groupKey = `${group.examineeEmail}-${group.assessmentId}`;
-                const isExpanded = expandedRows[groupKey];
-
-                // Calculate percentage for the highest score attempt
-                const highestScorePercentageValue = group.highestScoreAttempt
-                  ? calculatePercentage(
-                      group.highestScoreAttempt.successCount,
-                      group.highestScoreAttempt.failureCount,
-                      group.highestScoreAttempt.skippedCount
-                    )
-                  : 0;
-                const highestScorePercentageDisplay = formatPercentage(
-                  highestScorePercentageValue
-                );
-
-                return (
-                  <React.Fragment key={groupKey}>
-                    {/* Main row for each examinee/assessment group */}
-                    <tr
-                      className="hover:bg-gray-50 dark:hover:bg-gray-400 cursor-pointer"
-                      onClick={() => toggleRow(groupKey)}
-                    >
-                      {Examiner && (
-                        <>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium dark:text-gray-400 text-gray-900">
-                            {group.examineeName}
-                          </td>
-                          <td className="hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm  text-gray-500 dark:text-gray-400">
-                            {group.examineeEmail}
-                          </td>
-                        </>
-                      )}
-
-                      <td className=" hidden md:table-cell px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold dark:text-gray-400">
-                        {group.highestSuccessCount} point(s)
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-bold dark:text-gray-400">
-                        {highestScorePercentageDisplay}
-                      </td>
-                      {Examiner && (
-                        <td className={`px-6 py-4 whitespace-nowrap`}>
-                          <span
-                            className={`${parseFloat(highestScorePercentageDisplay) >= PassingScore ? "bg-accent-teal-light" : parseFloat(highestScorePercentageDisplay) == PassingScore ? "bg-[#B78B54]" : "bg-red-500"} p-1 rounded-full text-white text-sm`}
-                          >
-                            {parseFloat(highestScorePercentageDisplay) >=
-                            PassingScore
-                              ? "Passed"
-                              : parseFloat(highestScorePercentageDisplay) ==
-                                  PassingScore
-                                ? "Passed"
-                                : "Failed"}
-                          </span>
-                        </td>
-                      )}
-
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <button
-                          className="text-accent-teal-dark hover:text-indigo-900 focus:outline-none focus:ring-2 focus:ring-accent-teal-light focus:ring-offset-2 rounded-full p-1 transition-transform duration-200"
-                          aria-expanded={isExpanded}
-                          aria-controls={`attempts-row-${groupKey}`}
-                        >
-                          {isExpanded ? (
-                            <svg
-                              className="h-5 w-5 inline-block"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M5 15l7-7 7 7"
-                              ></path>
-                            </svg>
-                          ) : (
-                            <svg
-                              className="h-5 w-5 inline-block"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth="2"
-                                d="M19 9l-7 7-7-7"
-                              ></path>
-                            </svg>
-                          )}
-                          <span className="sr-only">
-                            {isExpanded ? "Collapse" : "Expand"} attempts
-                          </span>
-                        </button>
-                      </td>
-                    </tr>
-
-                    {/* Detailed attempts row, shown only when expanded */}
-                    {isExpanded && (
-                      <tr>
-                        <td
-                          colSpan="6"
-                          className="px-6 py-4 bg-gray-50 dark:bg-gray-800 dark:text-bg-light"
-                        >
-                          <div
-                            id={`attempts-row-${groupKey}`}
-                            className="space-y-4"
-                          >
-                            <h4 className="text-sm font-semibold light:text-gray-800 border-b pb-2">
-                              🧪 Individual Attempts
-                            </h4>
-
-                            <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                              {group.attempts.map((attempt, idx) => (
-                                <div
-                                  key={attempt.attemptId}
-                                  tabIndex={0}
-                                  className="bg-white dark:bg-gray-700 dark:text-bg-light rounded-xl shadow-sm border border-gray-200 p-4 transition hover:shadow-md"
-                                >
-                                  <div className="mb-2 text-sm font-medium bg-accent-teal-light p-2 rounded-xl text-bg-light" tabIndex={0} aria-label={`Attempt ${idx +1}`}>
-                                    Attempt: {idx + 1}
-                                  </div>
-
-                                  <ul className="text-sm light:text-gray-700 space-y-1">
-                                    <li className="flex items-center gap-2  shadow-2xl" tabIndex={0}>
-                                      <span className="text-green-600 font-medium" >
-                                        ✔ Success:
-                                      </span>{" "}
-                                      {attempt.successCount}
-                                    </li>
-                                    <li className="flex items-center gap-2" tabIndex={0}>
-                                      <span className="text-red-500 font-medium">
-                                        ✖ Failure:
-                                      </span>{" "}
-                                      {attempt.failureCount}
-                                    </li>
-                                    <li className="flex items-center gap-2" tabIndex={0}>
-                                      <span className="text-yellow-500 font-medium">
-                                        ⏭ Skipped:
-                                      </span>{" "}
-                                      {attempt.skippedCount}
-                                    </li>
-                                    <li className="mt-2 font-semibold light:text-blue-700" tabIndex={0}>
-                                      🎯 Score:{" "}
-                                      {formatPercentage(
-                                        calculatePercentage(
-                                          attempt.successCount,
-                                          attempt.failureCount,
-                                          attempt.skippedCount
-                                        )
-                                      )}
-                                    </li>
-                                  </ul>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
+                  return (
+                    <React.Fragment key={groupKey}>
+                      <tr className="border-b hover:bg-gray-50 cursor-pointer dark:hover:bg-gray-600  border-accent-teal-light" onClick={() => toggleRow(groupKey)}>
+                        {examiner && (
+                          <>
+                            <td className="p-4 font-medium">{group.examineeName}</td>
+                            <td className="p-4 light:text-gray-600 hidden md:table-cell">{group.examineeEmail}</td>
+                          </>
+                        )}
+                        <td className="p-4 font-bold hidden md:table-cell">{group.highestSuccessCount} points</td>
+                        <td className="p-4 font-bold">{highestScorePercentageDisplay}</td>
+                        {examiner && (
+                   <td className="p-4">
+  <Badge
+    className={
+      Number.parseFloat(highestScorePercentageDisplay) >= passingScore
+        ? "bg-green-100 text-green-800"
+        : "bg-red-100 text-red-800"
+    }
+  >
+    {Number.parseFloat(highestScorePercentageDisplay) >= passingScore ? "Passed" : "Failed"}
+  </Badge>
+</td>
+                        )}
+                        <td className="p-4">
+                          <Button variant="ghost" size="sm">
+                            {isExpanded ? "Hide" : "Show"} ({group.attempts.length})
+                          </Button>
                         </td>
                       </tr>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
-                  No results found for the current filters.
-                </td>
-              </tr>
-            )}
-          </tbody>
-          <tfoot>
+
+                      {isExpanded && (
+                        <tr>
+                          <td colSpan="6" className="p-4 bg-gray-50">
+                            <div className="space-y-4">
+                              <h4 className="font-semibold">Individual Attempts</h4>
+                              <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                                {group.attempts.map((attempt, idx) => (
+                                  <Card key={attempt.attemptId} className={`border border-accent`}>
+                                    <CardContent className="p-4">
+                                      <div className="mb-2">
+                                        <Badge className={`bg-accent-teal-light text-white`}>Attempt {idx + 1}</Badge>
+                                      </div>
+                                      <div className="space-y-2 text-sm">
+                                        <div className="flex justify-between">
+                                          <span className="text-green-600">✓ Success:</span>
+                                          <span>{attempt.successCount}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-red-500">✗ Failure:</span>
+                                          <span>{attempt.failureCount}</span>
+                                        </div>
+                                        <div className="flex justify-between">
+                                          <span className="text-yellow-500">⏭ Skipped:</span>
+                                          <span>{attempt.skippedCount}</span>
+                                        </div>
+                                        <div className="flex justify-between font-semibold pt-2 border-t">
+                                          <span>Score:</span>
+                                          <span>
+                                            {formatPercentage(
+                                              calculatePercentage(
+                                                attempt.successCount,
+                                                attempt.failureCount,
+                                                attempt.skippedCount,
+                                              ),
+                                            )}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    </CardContent>
+                                  </Card>
+                                ))}
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  )
+                })
+              ) : (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                    No results found for the current filters.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+ <tfoot>
             <tr>
               <td colSpan={8}>
                 <div className="w-full">
@@ -751,10 +783,11 @@ const AssessmentTable = ({
               </td>
             </tr>
           </tfoot>
-        </table>
-      </div>
-    </div>
-  );
-};
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
 
-export default MyAssessment;
+export default MyAssessment

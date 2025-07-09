@@ -209,7 +209,7 @@ const AssessmentSettings = ({ assessmentID, assessmentTitle, CreateSetting_for_a
                         </button>
                       </div>
                       <div className="mt-2">
-                        <div className="badge badge-neutral">{settings.timeLimit} minutes</div>
+                        <div className="badge badge-outline">{settings.timeLimit} minutes</div>
                       </div>
                     </div>
                     {/* )} */}
@@ -297,7 +297,7 @@ const AssessmentSettings = ({ assessmentID, assessmentTitle, CreateSetting_for_a
                     </div>
 
                     <div className="mt-2">
-                      <div className="badge badge-secondary">
+                      <div className="badge bg-btn-primary text-white">
                         Duration: {calculateDuration(settings.startDateTime, settings.endDateTime)}
                       </div>
                     </div>
@@ -322,7 +322,7 @@ const AssessmentSettings = ({ assessmentID, assessmentTitle, CreateSetting_for_a
                           name="isPublic"
                           checked={settings.isPublic}
                           onChange={handleChange}
-                          className="toggle toggle-accent"
+                          className="toggle text-btn-primary"
                         />
                         <span className="label-text font-medium">Make assessment public</span>
                       </label>
@@ -333,7 +333,7 @@ const AssessmentSettings = ({ assessmentID, assessmentTitle, CreateSetting_for_a
 
                     <div className="mt-2 p-3 bg-base-200 rounded-box">
                       <div className="flex items-center gap-2">
-                        <div className={`badge ${settings.isPublic ? "badge-success" : "badge-warning"}`}>
+                        <div className={`badge ${settings.isPublic ? "badge bg-accent-teal-light text-white" : "badge-warning"}`}>
                           {settings.isPublic ? "Public" : "Private"}
                         </div>
                         <span className="text-sm">
@@ -433,7 +433,7 @@ const AssessmentSettings = ({ assessmentID, assessmentTitle, CreateSetting_for_a
                       </div>
                       <div className="mt-2">
                         <progress
-                          className="progress progress-accent w-full"
+                          className="progress progress-success w-full"
                           value={settings.passingScore}
                           max="100"
                         ></progress>

@@ -132,8 +132,8 @@ const Menus = ({ roles, logout, isAuthenticated }) => {
                   }
                   key={subItems.label}
                   onClick={subItems.label === "Logout" ? handlelogout : null}
-                  className={`flex items-center justify-center lg:justify-start gap-2 text-white py-2 md:px-2 rounded-md w-full   hover:bg-accent ${
-                    location.pathname === subItems.href ? "bg-accent" : ""
+                  className={`flex items-center justify-center lg:justify-start gap-2 text-white py-2 md:px-2 rounded-md w-full  hover:bg-accent-teal-dark ${
+                    location.pathname === subItems.href ? "bg-accent-teal-dark" : ""
                   }`}
                   aria-label={`${subItems.label}`}
                 >

@@ -15,6 +15,7 @@ import {
 import { logout } from "../action/Auth";
 import { connect } from "react-redux";
 import { useLocation } from "react-router-dom";
+import ThemeToggleButton from "./ThemeToggleButton";
 
 // import AssessmentRoundedIcon from '@mui/icons-material/AssessmentRounded';
 const Menus = ({ roles, logout, isAuthenticated }) => {
@@ -97,6 +98,13 @@ const Menus = ({ roles, logout, isAuthenticated }) => {
           visible: ["EXAMINER", "ADMIN", "EXAMINEE"],
         },
         {
+          icon: <ThemeToggleButton variant="icon" />,
+          label: "Theme",
+          href: "#",
+          visible: ["EXAMINER", "ADMIN", "EXAMINEE"],
+          isThemeToggle: true,
+        },
+        {
           icon: <LogOut />,
           label: "Logout",
           href: "/",
@@ -126,6 +134,20 @@ const Menus = ({ roles, logout, isAuthenticated }) => {
           {item.items.map((subItems) => {
             if (subItems.visible.includes(roles)) {
               return (
+                subItems.isThemeToggle ? (
+                  <div
+                    key={subItems.label}
+                    className="flex items-center justify-center lg:justify-start gap-2 text-white py-2 md:px-2 rounded-md w-full"
+                  >
+                    <span className="lg:hidden">
+                      <ThemeToggleButton variant="toggle" />
+                    </span>
+                    <span className="hidden lg:flex items-center gap-2">
+                      <ThemeToggleButton variant="toggle" />
+                      <span className="p-1">{subItems.label}</span>
+                    </span>
+                  </div>
+                ) : (
                 <Link
                   to={
                     subItems.label !== "Logout" ? subItems.href : subItems.href
@@ -140,6 +162,7 @@ const Menus = ({ roles, logout, isAuthenticated }) => {
                   <span>{subItems.icon}</span>
                   <span className="hidden lg:block p-1">{subItems.label}</span>
                 </Link>
+                )
               );
             }
           })}

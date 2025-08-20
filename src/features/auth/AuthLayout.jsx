@@ -3,6 +3,7 @@ import { Link, Outlet } from 'react-router-dom';
 import hero from '../../assets/hero1-min.png';
 import logo from '../../assets/logo.svg';
 import { ArrowLeft, Home } from 'lucide-react';
+import ThemeToggle from '../../components/ThemeToggle';
 
 const AuthLayout = () => {
   return (
@@ -14,6 +15,9 @@ const AuthLayout = () => {
               alt="logo"
               className="absolute rounded-full inset-0 w-16 h-16 md:w-24 md:h-24 md:top-7 md:left-7  top-7 left-5 dark:text-white"
             />
+            <div className="absolute top-7 right-7">
+              <ThemeToggle />
+            </div>
       </div>
       {/* outlet */}
        <div className=" w-[70%] h-[93%]  shadow-xl shadow-btn-primary rounded  rounded-l-xl rounded-r-2xl  flex bg-white text-black dark:bg-gray-900 dark:text-white ">

@@ -7,6 +7,7 @@ import Menus from "../components/Menu";
 import { Outlet, useLocation } from "react-router-dom";
 import useAuthCheck from "../hooks/useAuthCheck";
 import { motion, AnimatePresence } from "framer-motion";
+import ThemeToggle from "../components/ThemeToggle";
 const Dashboard = () => {
   // consts
   const location = useLocation();
@@ -48,6 +49,10 @@ const Dashboard = () => {
           </span>
         </div>
 
+        {/* Theme Toggle in Sidebar */}
+        <div className="mt-4 flex justify-center lg:justify-start">
+          <ThemeToggle />
+        </div>
         <Menus
           roles={(user.roles = user.roles.filter((role) => role !== "USER")[0])}
         />

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { Bell, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import ThemeToggle from "./ThemeToggle";
 
 const Header = () => {
   const [currentDate] = useState(new Date());
@@ -29,6 +30,7 @@ const Header = () => {
               <Search className="absolute left-3 top-4 h-6 w-6 text-gray-400" />
             </div>
             <div className="flex items-center space-x-4">
+              <ThemeToggle />
               <Link to="/notifications">
                 <button className="relative p-2 text-gray-400 hover:text-gray-500">
                   <Bell className="h-6 w-6" />
